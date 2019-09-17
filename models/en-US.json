@@ -1,0 +1,88 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "sumologic",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "RunSearchIntent",
+          "slots": [
+            {
+              "name": "SavedSearchName",
+              "type": "AMAZON.SearchQuery",
+              "samples": [
+                "{SavedSearchName}"
+              ]
+            },
+            {
+              "name": "Duration",
+              "type": "AMAZON.DURATION"
+            }
+          ],
+          "samples": [
+            "ask sumo to run a saved search {SavedSearchName}",
+            "tell sumo to run {SavedSearchName}",
+            "tell sumo to run a saved search",
+            "ask sumo to run a saved search"
+          ]
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        }
+      ],
+      "types": []
+    },
+    "dialog": {
+      "intents": [
+        {
+          "name": "RunSearchIntent",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "SavedSearchName",
+              "type": "AMAZON.SearchQuery",
+              "elicitationRequired": true,
+              "confirmationRequired": false,
+              "prompts": {
+                "elicitation": "Elicit.Slot.932837261006.703221814903"
+              }
+            },
+            {
+              "name": "Duration",
+              "type": "AMAZON.DURATION",
+              "elicitationRequired": false,
+              "confirmationRequired": false,
+              "prompts": {}
+            }
+          ]
+        }
+      ],
+      "delegationStrategy": "ALWAYS"
+    },
+    "prompts": [
+      {
+        "id": "Elicit.Slot.932837261006.703221814903",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Please specify the saved search name in your command"
+          }
+        ]
+      }
+    ]
+  },
+  "version": "4"
+}
