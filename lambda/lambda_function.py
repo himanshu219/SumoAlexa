@@ -29,7 +29,7 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speak_output = "Welcome, you can say Hello or Help. Which would you like to try?"
+        speak_output = "Welcome, you can run a search or ask for help"
 
         return (
             handler_input.response_builder
@@ -37,6 +37,26 @@ class LaunchRequestHandler(AbstractRequestHandler):
                 .ask(speak_output)
                 .response
         )
+        
+
+class SavedSearchIntentHandler(AbstractRequestHandler):
+    
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("RunSearch")(handler_input)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        sumoapi = SumoAPI("suNJV499XriL61", "Pq5FOo4FDykMwo4HA8ZQFIs5CsfVHIcuneonQtFqrUQu3K72uAzLTkw7XKSKM9zk", "nite", handler_input.request_envelope)
+        speak_output = sumoapi.run_raw_search("_sourceCategory=Labs/apache*")
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                # .ask("add a reprompt if you want to keep the session open for the user to respond")
+                .response
+        )
+
+        
 
 class HelpIntentHandler(AbstractRequestHandler):
     """Handler for Help Intent."""
