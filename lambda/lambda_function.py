@@ -49,6 +49,7 @@ class SavedSearchIntentHandler(AbstractRequestHandler):
         # type: (HandlerInput) -> Response
 
         sumoapi = SumoAPI("suNJV499XriL61", "Pq5FOo4FDykMwo4HA8ZQFIs5CsfVHIcuneonQtFqrUQu3K72uAzLTkw7XKSKM9zk", "nite", handler_input.request_envelope)
+        logger.info(handler_input.request_envelope)
         speak_output = sumoapi.run_raw_search("_sourceCategory=%s*" % handler_input.request_envelope.intent.slots.search.value)
         # speak_output = "Job Scheduled"
         return (
