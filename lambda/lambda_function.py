@@ -14,7 +14,7 @@ from ask_sdk_core.handler_input import HandlerInput
 
 from ask_sdk_model import Response
 
-from api import SumoAPI
+# from api import SumoAPI
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
