@@ -6,7 +6,7 @@
 # This sample is built using the handler classes approach in skill builder.
 import logging
 import ask_sdk_core.utils as ask_utils
-
+from ask_sdk_model.slu.entityresolution import StatusCode
 from ask_sdk_core.skill_builder import SkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.dispatch_components import AbstractExceptionHandler
@@ -39,8 +39,51 @@ class LaunchRequestHandler(AbstractRequestHandler):
         )
 
 
-class SavedSearchIntentHandler(AbstractRequestHandler):
 
+class SavedSearchIntentHandler(AbstractRequestHandler):
+    
+    @staticmethod
+    def get_slot_values(filled_slots):
+        """Return slot values with additional info."""
+        slot_values = {}
+        logger.info("Filled slots: {}".format(filled_slots).replace("\n", "\r"))
+    
+        for key, slot_item in six.iteritems(filled_slots):
+            name = slot_item.name
+            try:
+                status_code = slot_item.resolutions.resolutions_per_authority[0].status.code
+    
+                if status_code == StatusCode.ER_SUCCESS_MATCH:
+                    slot_values[name] = {
+                        "synonym": slot_item.value,
+                        "resolved": slot_item.resolutions.resolutions_per_authority[0].values[0].value.__dict__,  # to make it JSON serializable
+                        "is_validated": True,
+                    }
+                elif status_code == StatusCode.ER_SUCCESS_NO_MATCH:
+                    slot_values[name] = {
+                        "synonym": slot_item.value,
+                        "resolved": slot_item.value,
+                        "is_validated": False,
+                    }
+                else:
+                    pass
+            except (AttributeError, ValueError, KeyError, IndexError, TypeError) as e:
+                # for BUILT-IN intents, there are no resolutions, but the value is specified
+                if slot_item.value is not None and slot_item.value != 'NONE':
+                    slot_values[name] = {
+                        "synonym": slot_item.value,
+                        "resolved": slot_item.value,
+                        "is_validated": True,
+                    }
+                else:
+                    logger.info("SLOT {} UNRESOLVED".format(name))
+                    slot_values[name] = {
+                        "synonym": slot_item.value,
+                        "resolved": slot_item.value,
+                        "is_validated": False,
+                    }
+        return slot_values
+        
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
         return ask_utils.is_intent_name("RunSearch")(handler_input)
@@ -50,7 +93,9 @@ class SavedSearchIntentHandler(AbstractRequestHandler):
 
         sumoapi = SumoAPI("suNJV499XriL61", "Pq5FOo4FDykMwo4HA8ZQFIs5CsfVHIcuneonQtFqrUQu3K72uAzLTkw7XKSKM9zk", "nite", handler_input.request_envelope)
         logger.info(handler_input.request_envelope)
-        speak_output = sumoapi.run_raw_search("_sourceCategory=%s*" % handler_input.request_envelope.request.intent.slots['search']['value'])
+        params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
+        logger.info("Params %s" % params)
+        speak_output = sumoapi.run_raw_search("_sourceCategory=%s*" % params["search"])
         # speak_output = "Job Scheduled"
         return (
             handler_input.response_builder
