@@ -46,6 +46,7 @@ class SavedSearchIntentHandler(AbstractRequestHandler):
         return ask_utils.is_intent_name("RunSearch")(handler_input)
 
     def handle(self, handler_input):
+        from api import SumoAPI
         # type: (HandlerInput) -> Response
         sumoapi = SumoAPI("suNJV499XriL61", "Pq5FOo4FDykMwo4HA8ZQFIs5CsfVHIcuneonQtFqrUQu3K72uAzLTkw7XKSKM9zk", "nite", handler_input.request_envelope)
         speak_output = sumoapi.run_raw_search("_sourceCategory=Labs/apache*")
