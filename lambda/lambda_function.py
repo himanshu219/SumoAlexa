@@ -91,7 +91,7 @@ class SavedSearchIntentHandler(AbstractRequestHandler):
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
 
-        sumoapi = SumoAPI("suNJV499XriL61", "Pq5FOo4FDykMwo4HA8ZQFIs5CsfVHIcuneonQtFqrUQu3K72uAzLTkw7XKSKM9zk", "nite", handler_input.request_envelope)
+        sumoapi = SumoAPI("suNNLllvfjDK4s", "lbCmtyd09TcK0uSZX7WmIhDuwBqIKs5U1FvJ8Q5TFYkdWNodhVQYtntIPq4GhMuX", "us1", handler_input.request_envelope)
         logger.info(handler_input.request_envelope)
         params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
         logger.info("Params %s" % params)
