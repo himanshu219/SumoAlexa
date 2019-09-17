@@ -1,88 +1,92 @@
 {
-  "interactionModel": {
-    "languageModel": {
-      "invocationName": "sumologic",
-      "intents": [
-        {
-          "name": "AMAZON.CancelIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.HelpIntent",
-          "samples": []
-        },
-        {
-          "name": "AMAZON.StopIntent",
-          "samples": []
-        },
-        {
-          "name": "RunSearchIntent",
-          "slots": [
-            {
-              "name": "SavedSearchName",
-              "type": "AMAZON.SearchQuery",
-              "samples": [
-                "{SavedSearchName}"
-              ]
-            },
-            {
-              "name": "Duration",
-              "type": "AMAZON.DURATION"
-            }
-          ],
-          "samples": [
-            "ask sumo to run a saved search {SavedSearchName}",
-            "tell sumo to run {SavedSearchName}",
-            "tell sumo to run a saved search",
-            "ask sumo to run a saved search"
-          ]
-        },
-        {
-          "name": "AMAZON.NavigateHomeIntent",
-          "samples": []
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "hi",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "RunSearch",
+                    "slots": [
+                        {
+                            "name": "search",
+                            "type": "search"
+                        },
+                        {
+                            "name": "source",
+                            "type": "source"
+                        },
+                        {
+                            "name": "minutes",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "Find {search} in source category {source} for last {minutes} minutes"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "search",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "exception"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "error"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "source",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "remix"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "receiver"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "bloomfilter"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "katta"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "stream"
+                            }
+                        }
+                    ]
+                }
+            ]
         }
-      ],
-      "types": []
-    },
-    "dialog": {
-      "intents": [
-        {
-          "name": "RunSearchIntent",
-          "confirmationRequired": false,
-          "prompts": {},
-          "slots": [
-            {
-              "name": "SavedSearchName",
-              "type": "AMAZON.SearchQuery",
-              "elicitationRequired": true,
-              "confirmationRequired": false,
-              "prompts": {
-                "elicitation": "Elicit.Slot.932837261006.703221814903"
-              }
-            },
-            {
-              "name": "Duration",
-              "type": "AMAZON.DURATION",
-              "elicitationRequired": false,
-              "confirmationRequired": false,
-              "prompts": {}
-            }
-          ]
-        }
-      ],
-      "delegationStrategy": "ALWAYS"
-    },
-    "prompts": [
-      {
-        "id": "Elicit.Slot.932837261006.703221814903",
-        "variations": [
-          {
-            "type": "PlainText",
-            "value": "Please specify the saved search name in your command"
-          }
-        ]
-      }
-    ]
-  },
-  "version": "4"
+    }
 }
