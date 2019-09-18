@@ -123,6 +123,7 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
         logger.info(handler_input.request_envelope)
         params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
         logger.info("Params %s" % params)
+        logger.info("Search Query: >>"+"_sourceCategory=%s*" % params["search"]["synonym"])
         speak_output = sumoapi.run_raw_search("_sourceCategory=%s*" % params["search"]["synonym"])
         # speak_output = "Job Scheduled"
         return (
