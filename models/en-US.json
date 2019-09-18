@@ -1,7 +1,7 @@
 {
     "interactionModel": {
         "languageModel": {
-            "invocationName": "hi",
+            "invocationName": "sumologic",
             "intents": [
                 {
                     "name": "AMAZON.CancelIntent",
@@ -38,12 +38,36 @@
                     "samples": [
                         "Find {search} in source category {source} for last {minutes} minutes"
                     ]
+                },
+                {
+                    "name": "RunSavedSearch",
+                    "slots": [
+                        {
+                            "name": "savedsearch",
+                            "type": "savedsearch"
+                        },
+                        {
+                            "name": "minutes",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "run saved search {savedsearch} for last {minutes} minutes"
+                    ]
                 }
             ],
             "types": [
                 {
                     "name": "search",
                     "values": [
+                        {
+                            "name": {
+                                "value": "error or exception or failure or fail ",
+                                "synonyms": [
+                                    "failures"
+                                ]
+                            }
+                        },
                         {
                             "name": {
                                 "value": "exception"
@@ -82,6 +106,21 @@
                         {
                             "name": {
                                 "value": "stream"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "savedsearch",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "KattaErrors"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Streamerrors"
                             }
                         }
                     ]
