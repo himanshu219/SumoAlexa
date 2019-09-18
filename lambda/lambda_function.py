@@ -138,13 +138,12 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
 
         logger.info("Params>>"+str(params))
 
-        by = params["by"]["resolved"]["name"]
-
-        logger.info("Input>>> " + search + "  " + source + "  " + str(time) + " by "+by)
-
-        if(by):
+        if params["by"]["resolved"]:
+            by = params["by"]["resolved"]["name"]
+            logger.info("Input>>> " + search + "  " + source + "  " + str(time) + " by "+by)
             search_query = "_sourceCategory="+source + " " + search + " | count by "+ by
         else:
+            logger.info("Input>>> " + search + "  " + source + "  " + str(time))
             search_query = "_sourceCategory=" + source + " " + search + " | count"
 
         logger.info("Search Query >> "+search_query)
