@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, '/opt')
 import boto3
 from ask_sdk_dynamodb.adapter import DynamoDbAdapter, user_id_partition_keygen
 import os

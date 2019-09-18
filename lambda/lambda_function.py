@@ -5,6 +5,8 @@
 # session persistence, api calls, and more.
 # This sample is built using the handler classes approach in skill builder.
 import logging
+import sys
+sys.path.insert(0, '/opt')
 import ask_sdk_core.utils as ask_utils
 from ask_sdk_core.utils import get_slot_value
 from ask_sdk_model.slu.entityresolution import StatusCode
