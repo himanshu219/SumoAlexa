@@ -133,10 +133,15 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
             handler_input=handler_input, slot_name="source")
         time = int(get_slot_value(
             handler_input=handler_input, slot_name="minutes"))
+        by = get_slot_value(
+            handler_input=handler_input, slot_name="by")
 
         logger.info("Input>>> " + search + "  " + source + "  " + str(time))
 
-        search_query = "_sourceCategory=" + source + " " + search + " | count"
+        if(by):
+            search_query = "_sourceCategory="+source + " " + search + " | count by "+ by
+        else:
+            search_query = "_sourceCategory=" + source + " " + search + " | count"
 
         logger.info("Search Query >> "+search_query)
 
