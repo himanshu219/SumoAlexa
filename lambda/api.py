@@ -34,9 +34,11 @@ class SumoAPI(object):
         # self.kvstore.save({"search_jobs": search_jobs})
         time.sleep(5)
         response1 = self._get_search_results(response)
-        speaktext = "Found %d Results" % len(response1)
+        speaktext = "Found %d Results." % len(response1)
         for i, res in enumerate(response1):
-            speaktext += "Row %d %s" % (i, " ".join(["%s=%s" % (k, v) for k, v in res.items()]))
+            non_cnt_fields = ", ".join(["%s" % (v) for k, v in res.items()])
+            cnt_values = ", ".join(["%s is %s" % (k, v) for k, v in res.items() if self._is_aggregate_query(k)])
+            speaktext += "%s for %s" % (cnt_values, non_cnt_fields)
         return speaktext
 
 
