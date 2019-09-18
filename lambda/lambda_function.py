@@ -7,7 +7,7 @@
 import logging
 import ask_sdk_core.utils as ask_utils
 from ask_sdk_model.slu.entityresolution import StatusCode
-from ask_sdk_core.skill_builder import SkillBuilder
+from ask_sdk_core.skill_builder import SkillBuilder, CustomSkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
 from ask_sdk_core.dispatch_components import AbstractExceptionHandler
 from ask_sdk_core.handler_input import HandlerInput
@@ -15,7 +15,7 @@ import six
 from ask_sdk_model import Response
 
 from api import SumoAPI
-from kvstore import KVStore
+from kvstore import adaptor, KVStore
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -94,7 +94,7 @@ class SavedSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        kvstore = KVStore(handler_input.request_envelope)
+        kvstore = KVStore(handler_input.request_envelope, adaptor)
         sumoapi = SumoAPI("suNNLllvfjDK4s", "lbCmtyd09TcK0uSZX7WmIhDuwBqIKs5U1FvJ8Q5TFYkdWNodhVQYtntIPq4GhMuX", "us1", kvstore)
         logger.info(handler_input.request_envelope)
         params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
@@ -118,7 +118,7 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        kvstore = KVStore(handler_input.request_envelope)
+        kvstore = KVStore(handler_input.request_envelope, adaptor)
         sumoapi = SumoAPI("suNNLllvfjDK4s", "lbCmtyd09TcK0uSZX7WmIhDuwBqIKs5U1FvJ8Q5TFYkdWNodhVQYtntIPq4GhMuX", "us1", kvstore)
         logger.info(handler_input.request_envelope)
         params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
@@ -240,7 +240,7 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 # defined are included below. The order matters - they're processed top to bottom.
 
 
-sb = SkillBuilder()
+sb = CustomSkillBuilder(persistence_adapter=adaptor)
 
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(SavedSearchIntentHandler())
