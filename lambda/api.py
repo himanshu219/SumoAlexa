@@ -25,6 +25,8 @@ class SumoAPI(object):
         self.kvstore.save({"search_jobs": search_jobs})
 
     def run_raw_search(self, search_query, duration):
+        sep= '<break time="1s"/>'
+        lsep = '<break time="2s"/>'
         # saves job id and schedules search
         response = self._run_search(search_query, duration)
         # user_data = self.kvstore.get()
@@ -34,12 +36,12 @@ class SumoAPI(object):
         # self.kvstore.save({"search_jobs": search_jobs})
         time.sleep(5)
         response1 = self._get_search_results(response)
-        speaktext = "Found %d Results." % len(response1)
+        speaktext = "Found %d Results%s" % (len(response1),lsep)
         for i, res in enumerate(response1):
-            non_cnt_fields = ", ".join(["%s" % (v) for k, v in res.items()])
-            cnt_values = ", ".join(["%s is %s" % (k, v) for k, v in res.items() if self._is_aggregate_query(k)])
-            speaktext += "%s for %s" % (cnt_values, non_cnt_fields)
-        return speaktext
+            non_cnt_fields = ", ".join(["%s" % (v) for k, v in res.items() if not self._is_aggregate_query(k)])
+            cnt_values = "".join(["%s is %s %s" % (k, v, sep) for k, v in res.items() if self._is_aggregate_query(k)])
+            speaktext += "%s for %s%s" % (cnt_values, non_cnt_fields,sep)
+        return "<speak>" + speaktext + "</speak>"
 
 
     def get_search_results(self, name=None):
