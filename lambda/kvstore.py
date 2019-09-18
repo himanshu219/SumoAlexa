@@ -8,7 +8,7 @@ dynamodb = boto3.resource('dynamodb', region_name=region_name)
 adaptor = DynamoDbAdapter(table_name="sumoalexa",
                                 partition_key_name="user_id",  # the ID you choose while creating the table
                                 partition_keygen=user_id_partition_keygen,  # default
-                                create_table=False,  # default
+                                create_table=True,  # default
                                 dynamodb_resource=dynamodb)
 class KVStore(object):
 

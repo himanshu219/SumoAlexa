@@ -24,15 +24,21 @@ class SumoAPI(object):
         search_jobs.append({"search_name": name, "job_id": response["id"], "is_aggregate": bool(self._is_aggregate_query(search_query))})
         self.kvstore.save({"search_jobs": search_jobs})
 
-    def run_raw_search(self, search_query):
+    def run_raw_search(self, search_query, duration):
         # saves job id and schedules search
-        response = self._run_search(search_query)
-        user_data = self.kvstore.get()
-        search_jobs = user_data.get("search_jobs", [])
-        search_jobs.append({"search_name": search_query, "job_id": response["id"],
-                            "is_aggregate": bool(self._is_aggregate_query(search_query))})
-        self.kvstore.save({"search_jobs": search_jobs})
-        return "Search scheduled"
+        response = self._run_search(search_query, duration)
+        # user_data = self.kvstore.get()
+        # search_jobs = user_data.get("search_jobs", [])
+        # search_jobs.append({"search_name": search_query, "job_id": response["id"],
+        #                     "is_aggregate": bool(self._is_aggregate_query(search_query))})
+        # self.kvstore.save({"search_jobs": search_jobs})
+        time.sleep(5)
+        response1 = self._get_search_results(response)
+        speaktext = "Found %d Results" % len(response1)
+        for i, res in enumerate(response1):
+            speaktext += "Row %d %s" % (i, " ".join(["%s=%s" % (k, v) for k, v in res.items()]))
+        return speaktext
+
 
     def get_search_results(self, name=None):
         search_job = self._get_job_id_by_name(name)
@@ -61,6 +67,9 @@ class SumoAPI(object):
     def _run_search(self, query, duration_sec=24*60*60*1000):
         to_time = int(time.time())*1000
         from_time = to_time - duration_sec
+        logger.info("to_time >> "+str(to_time))
+
+        logger.info("from_time >> "+str(from_time))
         try:
             response = self.sumologic_cli.search_job(query, fromTime=from_time, toTime=to_time)
             logger.info("schedule job status: %s" % response)

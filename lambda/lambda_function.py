@@ -6,6 +6,7 @@
 # This sample is built using the handler classes approach in skill builder.
 import logging
 import ask_sdk_core.utils as ask_utils
+from ask_sdk_core.utils import get_slot_value
 from ask_sdk_model.slu.entityresolution import StatusCode
 from ask_sdk_core.skill_builder import SkillBuilder, CustomSkillBuilder
 from ask_sdk_core.dispatch_components import AbstractRequestHandler
@@ -38,7 +39,7 @@ class BaseSearchIntentHandler(object):
                     slot_values[name] = {
                         "synonym": slot_item.value,
                         "resolved": slot_item.resolutions.resolutions_per_authority[0].values[0].value.__dict__,
-                    # to make it JSON serializable
+                        # to make it JSON serializable
                         "is_validated": True,
                     }
                 elif status_code == StatusCode.ER_SUCCESS_NO_MATCH:
@@ -66,8 +67,10 @@ class BaseSearchIntentHandler(object):
                     }
         return slot_values
 
+
 class LaunchRequestHandler(AbstractRequestHandler):
     """Handler for Skill Launch."""
+
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
 
@@ -86,7 +89,6 @@ class LaunchRequestHandler(AbstractRequestHandler):
 
 
 class SavedSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
-    
 
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
@@ -95,7 +97,8 @@ class SavedSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
         kvstore = KVStore(handler_input.request_envelope, adaptor)
-        sumoapi = SumoAPI("suNNLllvfjDK4s", "lbCmtyd09TcK0uSZX7WmIhDuwBqIKs5U1FvJ8Q5TFYkdWNodhVQYtntIPq4GhMuX", "us1", kvstore)
+        sumoapi = SumoAPI("suNNLllvfjDK4s", "lbCmtyd09TcK0uSZX7WmIhDuwBqIKs5U1FvJ8Q5TFYkdWNodhVQYtntIPq4GhMuX", "us1",
+                          kvstore)
         logger.info(handler_input.request_envelope)
         params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
         logger.info("Params %s" % params)
@@ -111,7 +114,6 @@ class SavedSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
 
 class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
 
-
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
         return ask_utils.is_intent_name("RunSearch")(handler_input)
@@ -119,13 +121,22 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
         kvstore = KVStore(handler_input.request_envelope, adaptor)
-        sumoapi = SumoAPI("suNNLllvfjDK4s", "lbCmtyd09TcK0uSZX7WmIhDuwBqIKs5U1FvJ8Q5TFYkdWNodhVQYtntIPq4GhMuX", "us1", kvstore)
+        sumoapi = SumoAPI("suvo3cEBM5Vfuv", "4reTLRbeczDYu2NTUNNDh9bnhiQ63I6q7a9gIzJP5Eil2VUHuqLXESebAYbzEEGH", "us1",
+                          kvstore)
         logger.info(handler_input.request_envelope)
-        params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
-        logger.info("Params %s" % params)
-        logger.info("Search Query: >>"+"_sourceCategory="+ params["source"]["synonym"] +" " + params["search"]["synonym"] +" | count")
-        speak_output = sumoapi.run_raw_search("_sourceCategory=%s*" % params["search"]["synonym"])
+
+        search = get_slot_value(
+            handler_input=handler_input, slot_name="search")
+        source = get_slot_value(
+            handler_input=handler_input, slot_name="source")
+        time = int(get_slot_value(
+            handler_input=handler_input, slot_name="minutes"))
+
+        logger.info("Input>>> " + search + "  " + source + "  " + str(time))
+        search_query = "_sourceCategory="+source + " " + search + " | count"
+        speak_output = sumoapi.run_raw_search(search_query, time*60*1000)
         # speak_output = "Job Scheduled"
+
         return (
             handler_input.response_builder
                 .speak(speak_output)
@@ -248,7 +259,8 @@ sb.add_request_handler(RawSearchIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
-sb.add_request_handler(IntentReflectorHandler())  # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
+sb.add_request_handler(
+    IntentReflectorHandler())  # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
 
 sb.add_exception_handler(CatchAllExceptionHandler())
 # sb.withR
