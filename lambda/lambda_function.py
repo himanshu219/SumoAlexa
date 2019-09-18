@@ -15,48 +15,30 @@ import six
 from ask_sdk_model import Response
 
 from api import SumoAPI
+from kvstore import KVStore
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class LaunchRequestHandler(AbstractRequestHandler):
-    """Handler for Skill Launch."""
-    def can_handle(self, handler_input):
-        # type: (HandlerInput) -> bool
+class BaseSearchIntentHandler(object):
 
-        return ask_utils.is_request_type("LaunchRequest")(handler_input)
-
-    def handle(self, handler_input):
-        # type: (HandlerInput) -> Response
-        speak_output = "Welcome, you can run a search or ask for help"
-
-        return (
-            handler_input.response_builder
-                .speak(speak_output)
-                .ask(speak_output)
-                .response
-        )
-
-
-
-class SavedSearchIntentHandler(AbstractRequestHandler):
-    
     @staticmethod
     def get_slot_values(filled_slots):
         """Return slot values with additional info."""
         slot_values = {}
         logger.info("Filled slots: {}".format(filled_slots).replace("\n", "\r"))
-    
+
         for key, slot_item in six.iteritems(filled_slots):
             name = slot_item.name
             try:
                 status_code = slot_item.resolutions.resolutions_per_authority[0].status.code
-    
+
                 if status_code == StatusCode.ER_SUCCESS_MATCH:
                     slot_values[name] = {
                         "synonym": slot_item.value,
-                        "resolved": slot_item.resolutions.resolutions_per_authority[0].values[0].value.__dict__,  # to make it JSON serializable
+                        "resolved": slot_item.resolutions.resolutions_per_authority[0].values[0].value.__dict__,
+                    # to make it JSON serializable
                         "is_validated": True,
                     }
                 elif status_code == StatusCode.ER_SUCCESS_NO_MATCH:
@@ -83,15 +65,61 @@ class SavedSearchIntentHandler(AbstractRequestHandler):
                         "is_validated": False,
                     }
         return slot_values
-        
+
+class LaunchRequestHandler(AbstractRequestHandler):
+    """Handler for Skill Launch."""
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+
+        return ask_utils.is_request_type("LaunchRequest")(handler_input)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        speak_output = "Welcome, you can run a search or ask for help"
+
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .ask(speak_output)
+                .response
+        )
+
+
+class SavedSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
+    
+
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
         return ask_utils.is_intent_name("RunSearch")(handler_input)
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
+        kvstore = KVStore(handler_input.request_envelope)
+        sumoapi = SumoAPI("suNNLllvfjDK4s", "lbCmtyd09TcK0uSZX7WmIhDuwBqIKs5U1FvJ8Q5TFYkdWNodhVQYtntIPq4GhMuX", "us1", kvstore)
+        logger.info(handler_input.request_envelope)
+        params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
+        logger.info("Params %s" % params)
+        speak_output = sumoapi.run_raw_search("_sourceCategory=%s*" % params["search"]["synonym"])
+        # speak_output = "Job Scheduled"
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                # .ask("add a reprompt if you want to keep the session open for the user to respond")
+                .response
+        )
 
-        sumoapi = SumoAPI("suNNLllvfjDK4s", "lbCmtyd09TcK0uSZX7WmIhDuwBqIKs5U1FvJ8Q5TFYkdWNodhVQYtntIPq4GhMuX", "us1", handler_input.request_envelope)
+
+class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
+
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("RunSearch")(handler_input)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        kvstore = KVStore(handler_input.request_envelope)
+        sumoapi = SumoAPI("suNNLllvfjDK4s", "lbCmtyd09TcK0uSZX7WmIhDuwBqIKs5U1FvJ8Q5TFYkdWNodhVQYtntIPq4GhMuX", "us1", kvstore)
         logger.info(handler_input.request_envelope)
         params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
         logger.info("Params %s" % params)
@@ -215,6 +243,7 @@ sb = SkillBuilder()
 
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(SavedSearchIntentHandler())
+sb.add_request_handler(RawSearchIntentHandler())
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
