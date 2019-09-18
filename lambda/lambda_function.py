@@ -135,6 +135,9 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
             handler_input=handler_input, slot_name="minutes"))
         # by = get_slot_value(handler_input=handler_input, slot_name="by")
         params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
+
+        logger.info("Params>>"+str(params))
+
         by = params["by"]["resolved"]["name"]
 
         logger.info("Input>>> " + search + "  " + source + "  " + str(time) + " by "+by)
