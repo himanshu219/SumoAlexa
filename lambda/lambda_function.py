@@ -133,10 +133,11 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
             handler_input=handler_input, slot_name="source")
         time = int(get_slot_value(
             handler_input=handler_input, slot_name="minutes"))
-        by = get_slot_value(
-            handler_input=handler_input, slot_name="by")
+        # by = get_slot_value(handler_input=handler_input, slot_name="by")
+        params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
+        by = params["by"]["resolved"]["name"]
 
-        logger.info("Input>>> " + search + "  " + source + "  " + str(time))
+        logger.info("Input>>> " + search + "  " + source + "  " + str(time) + " by "+by)
 
         if(by):
             search_query = "_sourceCategory="+source + " " + search + " | count by "+ by
@@ -145,8 +146,6 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
 
         logger.info("Search Query >> "+search_query)
 
-        params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
-        logger.info("Params %s" % params)
 
         speak_output = sumoapi.run_raw_search(search_query, time*60*1000)
         # speak_output = "Job Scheduled"
