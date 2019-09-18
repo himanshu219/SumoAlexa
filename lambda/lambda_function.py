@@ -90,7 +90,7 @@ class SavedSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
 
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
-        return ask_utils.is_intent_name("RunSearch")(handler_input)
+        return ask_utils.is_intent_name("RunSavedSearch")(handler_input)
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
