@@ -79,7 +79,7 @@ class SumoAPI(object):
                 raise SumoException("unable to authenticate")
             elif hasattr(e, "response") and e.response.status_code == 403:
                 raise SumoException("you do not have permission")
-            elif hasattr(e, "response"):
+            elif hasattr(e, "response") and hasattr(e.response, "message"):
                 raise SumoException("unable to run search status_code: %s message: %s" % (e.response.status_code, e.response.message))
             else:
                 raise SumoException("unknown error")
