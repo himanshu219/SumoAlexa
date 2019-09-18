@@ -135,7 +135,7 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
             handler_input=handler_input, slot_name="minutes"))
 
         logger.info("Input>>> " + search + "  " + source + "  " + str(time))
-        search_query = "_sourceCategory="+source + " " + search + " | count "
+        search_query = "_sourceCategory="+source + " " + search + " | count by _sourcehost "
         speak_output = sumoapi.run_raw_search(search_query, time*60*1000)
         # speak_output = "Job Scheduled"
 
