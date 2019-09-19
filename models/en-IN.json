@@ -1,0 +1,165 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "sumo logic",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "RunSearch",
+                    "slots": [
+                        {
+                            "name": "search",
+                            "type": "search"
+                        },
+                        {
+                            "name": "source",
+                            "type": "source"
+                        },
+                        {
+                            "name": "minutes",
+                            "type": "AMAZON.NUMBER"
+                        },
+                        {
+                            "name": "by",
+                            "type": "by"
+                        }
+                    ],
+                    "samples": [
+                        "Find {search}  {by} in source category {source} for last {minutes} minutes",
+                        "Find {search} in source category {source} for last {minutes} minutes"
+                    ]
+                },
+                {
+                    "name": "RunSavedSearch",
+                    "slots": [
+                        {
+                            "name": "savedsearch",
+                            "type": "savedsearch"
+                        },
+                        {
+                            "name": "minutes",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "run saved search {savedsearch} for last {minutes} minutes"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "search",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "error or exception or failure or fail ",
+                                "synonyms": [
+                                    "failures"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "exception"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "error"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "source",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "remix"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "receiver"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "bloomfilter"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "katta"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "stream"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "savedsearch",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "KattaErrors"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Streamerrors"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "by",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "_collector",
+                                "synonyms": [
+                                    "by collector"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "_source",
+                                "synonyms": [
+                                    "by source"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "_sourceHost",
+                                "synonyms": [
+                                    "by sourcehost"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
