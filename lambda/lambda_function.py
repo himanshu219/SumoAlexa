@@ -383,7 +383,8 @@ sb.add_request_handler(SavedSearchIntentHandler())
 sb.add_request_handler(RawSearchIntentHandler())
 sb.add_request_handler(WhatsNewIntentHandler())
 sb.add_request_handler(ServiceStatusIntentHandler())
-
+sb.add_request_handler(JenkinsStatusIntentHandler())
+sb.add_request_handler(ReleaseBlockerIntentHandler())
 
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
