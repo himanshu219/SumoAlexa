@@ -1,7 +1,7 @@
 {
     "interactionModel": {
         "languageModel": {
-            "invocationName": "sumologic",
+            "invocationName": "sumo logic",
             "intents": [
                 {
                     "name": "AMAZON.CancelIntent",
@@ -33,9 +33,14 @@
                         {
                             "name": "minutes",
                             "type": "AMAZON.NUMBER"
+                        },
+                        {
+                            "name": "by",
+                            "type": "by"
                         }
                     ],
                     "samples": [
+                        "Find {search}  {by} in source category {source} for last {minutes} minutes",
                         "Find {search} in source category {source} for last {minutes} minutes"
                     ]
                 },
@@ -54,6 +59,54 @@
                     "samples": [
                         "run saved search {savedsearch} for last {minutes} minutes"
                     ]
+                },
+                {
+                    "name": "AMAZON.MoreIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NavigateSettingsIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NextIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PageUpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PageDownIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PreviousIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollRightIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollDownIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollLeftIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ScrollUpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PauseIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.ResumeIntent",
+                    "samples": []
                 }
             ],
             "types": [
@@ -124,8 +177,37 @@
                             }
                         }
                     ]
+                },
+                {
+                    "name": "by",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "_collector",
+                                "synonyms": [
+                                    "by collector"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "_source",
+                                "synonyms": [
+                                    "by source"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "_sourceHost",
+                                "synonyms": [
+                                    "by sourcehost"
+                                ]
+                            }
+                        }
+                    ]
                 }
             ]
         }
     }
-}
+}en-US.json
