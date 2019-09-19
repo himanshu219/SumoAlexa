@@ -13,6 +13,9 @@
       "locales": {
         "en-US": {
           "name": "Sumologic"
+        },
+        "en-IN": {
+          "name": "Sumologic"
         }
       }
     }
