@@ -20,7 +20,7 @@ do
 
     aws lambda publish-layer-version --layer-name sumologicalexaskill_deps --description "contains SumologicAlexaSkill solution dependencies" --license-info "MIT" --content S3Bucket=$bucket_name,S3Key=SumologicAlexaSkill.zip --compatible-runtimes python3.7 python3.6 --region $i
 
-    aws lambda add-layer-version-permission --layer-name sumologicalexaskill_deps  --statement-id sumologicalexaskill-deps --version-number 1 --principal '*' --action lambda:GetLayerVersion --region $i
+    aws lambda add-layer-version-permission --layer-name sumologicalexaskill_deps  --statement-id sumologicalexaskill-deps --version-number 2 --principal '*' --action lambda:GetLayerVersion --region $i
 done
 
 # aws lambda remove-layer-version-permission --layer-name securityhub_deps --version-number 1 --statement-id securityhub-deps --region us-east-1

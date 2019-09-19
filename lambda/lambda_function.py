@@ -17,7 +17,7 @@ from ask_sdk_core.handler_input import HandlerInput
 import six
 from ask_sdk_model import Response
 
-from api import SumoAPI
+from api import SumoAPI, DochubPageAPI, StatusPageAPI
 from kvstore import adaptor, KVStore
 
 logger = logging.getLogger(__name__)
@@ -114,6 +114,52 @@ class SavedSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
         )
 
 
+class WhatsNewIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("WhatsNew")(handler_input)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        logger.info(handler_input.request_envelope)
+        speak_output = DochubPageAPI().get_latest_release_notes()
+        # speak_output = "Job Scheduled"
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                # .ask("add a reprompt if you want to keep the session open for the user to respond")
+                .response
+        )
+
+
+
+class ServiceStatusIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("ServiceStatus")(handler_input)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+
+        logger.info(handler_input.request_envelope)
+        params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
+        logger.info("Params %s" % params)
+        if params["deployment"]["resolved"]:
+            deployment = params["deployment"]["resolved"]["name"]
+            speak_output = StatusPageAPI().get_service_status(deployment)
+        else:
+            speak_output = StatusPageAPI().get_service_status()
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                # .ask("add a reprompt if you want to keep the session open for the user to respond")
+                .response
+        )
+
+
+
 class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
 
     def can_handle(self, handler_input):
@@ -150,7 +196,6 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
 
 
         speak_output = sumoapi.run_raw_search(search_query, time*60*1000)
-        # speak_output = "Job Scheduled"
 
         return (
             handler_input.response_builder
@@ -260,6 +305,12 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
                 .response
         )
 
+# from ask_sdk_core.dispatch_components import AbstractResponseInterceptor
+#
+# class LoggingResponseInterceptor(AbstractResponseInterceptor):
+#     def process(handler_input, response):
+#         print("Response generated: {}".format(response))
+
 
 # The SkillBuilder object acts as the entry point for your skill, routing all request and response
 # payloads to the handlers above. Make sure any new handlers or interceptors you've
@@ -271,11 +322,16 @@ sb = CustomSkillBuilder(persistence_adapter=adaptor)
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(SavedSearchIntentHandler())
 sb.add_request_handler(RawSearchIntentHandler())
+sb.add_request_handler(WhatsNewIntentHandler())
+sb.add_request_handler(ServiceStatusIntentHandler())
+
+
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
 sb.add_request_handler(SessionEndedRequestHandler())
-sb.add_request_handler(
-    IntentReflectorHandler())  # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
+
+
+sb.add_request_handler(IntentReflectorHandler())  # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
 
 sb.add_exception_handler(CatchAllExceptionHandler())
 # sb.withR

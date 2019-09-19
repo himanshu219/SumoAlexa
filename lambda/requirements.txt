@@ -2,3 +2,4 @@ boto3==1.9.216
 ask-sdk-core==1.11.0
 isodate==0.6.0
 ask-sdk-dynamodb-persistence-adapter==1.11.0
+beautifulsoup4==4.8.0
