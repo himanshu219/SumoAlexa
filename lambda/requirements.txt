@@ -4,3 +4,4 @@ isodate==0.6.0
 ask-sdk-dynamodb-persistence-adapter==1.11.0
 beautifulsoup4==4.8.0
 python-jenkins=1.5.0
+jira==2.0.0
