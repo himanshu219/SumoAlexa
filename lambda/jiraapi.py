@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, '/opt')
 from jira import JIRA
 # import functools
 
@@ -33,7 +35,7 @@ class JiraAPI(object):
         branch = "19.%s" % branch
         query = 'project in (10000, 10640) AND status != Closed AND (affectedVersion in (%s) OR fixVersion in (%s)) AND type in (Bug, "Bug for User Story", "Customer Support Issue") AND priority = Blocker ORDER BY priority DESC, status ASC, created DESC' % (branch, branch)
         issues_in_proj = self.client.search_issues(query)
-        return {'count': len(issues_in_proj), 'issues': [{'assignee': issue.fields.assignee.name, 'summary': issue.fields.summary} for issue in issues_in_proj][:limit]}
+        return {'count': len(issues_in_proj), 'issues': [{'assignee': issue.fields.assignee.displayName, 'summary': issue.fields.summary} for issue in issues_in_proj][:limit]}
 
     @capture_err
     def get_blocker_issues_by_project(self, name, limit=5):

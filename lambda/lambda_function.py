@@ -5,11 +5,10 @@
 # session persistence, api calls, and more.
 # This sample is built using the handler classes approach in skill builder.
 import logging
+import traceback
 import sys
-
-import requests
-
 sys.path.insert(0, '/opt')
+import requests
 import ask_sdk_core.utils as ask_utils
 from ask_sdk_core.utils import get_slot_value
 from ask_sdk_model.slu.entityresolution import StatusCode
@@ -20,7 +19,7 @@ from ask_sdk_core.handler_input import HandlerInput
 import six
 from ask_sdk_model import Response
 
-from api import SumoAPI, DochubPageAPI, StatusPageAPI
+from api import SumoAPI, DochubPageAPI, StatusPageAPI, get_sep
 from kvstore import adaptor, KVStore
 
 logger = logging.getLogger(__name__)
@@ -143,11 +142,18 @@ class JenkinsStatusIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler
         return ask_utils.is_intent_name("JenkinsStatus")(handler_input)
 
     def get_failing_jobs(self):
-        response = requests.get("http://d4d243ea.ngrok.io/failing_jobs")
         text = "Sorry! unable to fetch Jenkins Job status"
-        if response.ok:
-            resp = response.json()
-            text = "There are %d failing Jenkins Jobs in Master and %d in Stag. Out of which %d are Integration tests %d are End to End %d are Release and %d are Flow jobs" % (resp['failing_master_jobs'], resp['failing_stag_jobs'], resp['failing_it_jobs'], resp['failing_e2e_jobs'], resp['failing_release_jobs'],resp['failing_flow_jobs'])
+        try:
+            response = requests.get("http://d4d243ea.ngrok.io/failing_jobs")
+
+            if response.ok:
+                resp = response.json()
+                logger.info(resp)
+                text = "There are %d failing Jenkins Jobs in Master and %d in Stag. Out of which %d are Integration tests %d are End to End %d are Release and %d are Flow jobs" % (
+                resp['failing_master_jobs'], resp['failing_stag_jobs'], resp['failing_it_jobs'],
+                resp['failing_e2e_jobs'], resp['failing_release_jobs'], resp['failing_flow_jobs'])
+        except Exception as e:
+            logger.error(e, traceback.format_exc())
 
         return "<speak>" + text + "</speak>"
 
@@ -170,12 +176,16 @@ class ReleaseBlockerIntentHandler(AbstractRequestHandler, BaseSearchIntentHandle
         return ask_utils.is_intent_name("ReleaseBlocker")(handler_input)
 
     def get_release_blockers(self, release_branch):
-        response = requests.get("http://d4d243ea.ngrok.io/release_blocker_issues/%d" % release_branch)
         text = "Sorry! unable to connect with Jira service"
-        if response.ok:
-            resp = response.json()
-            jira_text = ",".join("%s assigned to %s" % (issue['summary'], issue['assignee'])for issue in resp['issues'])
-            text = "There are %d release blockers for release branch i19.%d. Top %d are following: %s" % (resp['count'], release_branch, min(5, resp['count']), jira_text)
+        try:
+            response = requests.get("http://d4d243ea.ngrok.io/release_blocker_issues/%s" % release_branch)
+            if response.ok:
+                resp = response.json()
+                logger.info(resp)
+                jira_text = ",".join("%s %s assigned to %s" % (issue['summary'], get_sep(1), issue['assignee']) for issue in resp['issues'])
+                text = "There are %d release blockers for release branch i19.%s. Top %d are following: %s" % (resp['count'], release_branch, min(5, resp['count']), jira_text)
+        except Exception as e:
+            logger.error(e, traceback.format_exc())
 
         return "<speak>" + text + "</speak>"
 

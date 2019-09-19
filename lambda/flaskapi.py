@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, '/opt')
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
 from jenkins_api import JenkinsAPI
@@ -28,6 +30,7 @@ app.config['SECRET_KEY'] = 'secret'
 
 username = ""
 password = ""
+
 jira_api = JiraAPI(username, password)
 jenkins_api = JenkinsAPI(username, password)
 

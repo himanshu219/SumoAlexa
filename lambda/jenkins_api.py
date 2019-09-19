@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, '/opt')
 import jenkins
 
 class JenkinsAPI(object):
@@ -33,7 +35,7 @@ class JenkinsAPI(object):
             "failing_master_jobs": master,
             "failing_stag_jobs": stag,
             "failing_e2e_jobs": e2e,
-            "failiing_it_jobs": it,
+            "failing_it_jobs": it,
             "failing_release_jobs": release,
             "failing_flow_jobs": flow
         }
