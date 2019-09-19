@@ -3,6 +3,9 @@ sys.path.insert(0, '/opt')
 import datetime
 import requests
 
+import json
+
+
 from errors import SumoException
 from sumologic import SumoLogic
 import logging
@@ -24,6 +27,9 @@ class SumoAPI(object):
         self.deployment = deployment
         self.sumologic_cli = SumoLogic(access_id, access_key)
         self.kvstore = kvstore
+        self.session=None
+        self.headers=None
+        self.dep=None
 
     def run_saved_search(self, name):
         # saves job id and schedules search
@@ -239,6 +245,62 @@ class SumoAPI(object):
         response = self.sumologic_cli.get_personal_folder()
         return response.json()['id']
 
+    def login(self, email,password,dep):
+        self.session = requests.session()
+        self.dep=dep
+        email = email
+        password = password
+
+        self.headers = {
+            'Pragma': 'no-cache',
+            'Origin': self.urls.get(dep),
+            'Accept-Encoding': 'gzip, deflate, br',
+            'ApiSession': 'null',
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) '
+                          'Chrome/61.0.3163.91 Safari/537.36',
+            'Content-Type': 'application/json',
+            'Accept-Language': 'en-GB,en-US;q=0.8,en;q=0.6',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Cache-Control': 'no-cache',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Connection': 'keep-alive',
+            'Referer': self.urls.get(dep) + '/ui/',
+        }
+
+        data = {"email": email, "password": password}
+        req = self.session.post(self.urls.get(dep) + '/json/v1/authentication/loginwithcredentials', headers=self.headers,
+                           data=json.dumps(data))
+        response = json.loads(req.text)
+
+        self.headers['ApiSession'] = response['apiSessionId']
+        logger.info('Login is successful for %s',email)
+
+
+    def get_saved_search_query(self,searchId):
+
+        URL = self.urls.get(self.dep) + '/json/v1/savedsearch/getSingle/table?searchId=' + str(searchId)
+
+        RESULT = self.session.get(URL, headers=self.headers)
+        result = json.loads(RESULT._content)
+        query = result["query"]["queryString"]
+        logger.info("QUERY >> "+query)
+        #timeRange = result["query"]["timeRange"]
+
+        return query
+
+    urls = {
+        "long": "https://long-www.sumologic.net",
+            "us1":"https://service.sumologic.com",
+            "us2":"https://service.us2.sumologic.com",
+            "dub":"https://service.eu.sumologic.com",
+            "fed":"https://service.fed.sumologic.com",
+            "fra":"https://service.de.sumologic.com",
+            "syd":"https://service.au.sumologic.com",
+            "mon":"https://service.ca.sumologic.com",
+            "tky":"https://service.jp.sumologic.com"
+        }
+
+
 
 class DochubPageAPI(object):
 
@@ -340,8 +402,8 @@ class OperatorPageAPI(object):
 
 
 if __name__ == '__main__':
-    # print(DochubPageAPI().get_latest_release_notes())
-    print(StatusPageAPI().get_service_status())
-
+    api=SumoAPI("", "", "us1","")
+    api.login("","","us1")
+    api.get_saved_search_query()
 
 
