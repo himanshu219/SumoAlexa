@@ -12,15 +12,16 @@ import unicodedata
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-def matchstr(first, second):
-    def slugify(s):
-        s = s.decode() if isinstance(s, bytes) else s
-        slug = unicodedata.normalize('NFKD', s)
-        slug = re.sub(r'[^a-z0-9]+', '-', slug).strip('-')
-        slug = re.sub(r'[-]+', '-', slug)
-        slug = slug.encode('ascii', 'ignore').lower()
-        return slug
 
+def slugify(s):
+    s = s.decode() if isinstance(s, bytes) else s
+    slug = unicodedata.normalize('NFKD', s)
+    slug = re.sub(r'[^A-Za-z0-9]+', '-', slug).strip('-')
+    slug = re.sub(r'[-]+', '-', slug)
+    slug = slug.encode('ascii', 'ignore').lower()
+    return slug
+
+def matchstr(first, second):
     return slugify(first) == slugify(second)
 
 class SumoAPI(object):
@@ -38,10 +39,23 @@ class SumoAPI(object):
         "mon": "https://service.ca.sumologic.com",
         "tky": "https://service.jp.sumologic.com"
     }
+    api_urls = {
+        "long": "https://long-api.sumologic.net/api",
+        "nite": "https://nite-api.sumologic.net/api",
+        'stag': "https://stag-api.sumologic.net/api",
+        "us1": "https://api.sumologic.com/api",
+        "us2": "https://api.us2.sumologic.com/api",
+        "dub": "https://api.eu.sumologic.com/api",
+        "fed": "https://api.fed.sumologic.com/api",
+        "fra": "https://api.de.sumologic.com/api",
+        "syd": "https://api.au.sumologic.com/api",
+        "mon": "https://api.ca.sumologic.com/api",
+        "tky": "https://api.jp.sumologic.com/api"
+    }
 
     def __init__(self, access_id, access_key, deployment, email, password, kvstore):
         self.deployment = deployment
-        self.sumologic_cli = SumoLogic(access_id, access_key)
+        self.sumologic_cli = SumoLogic(access_id, access_key, endpoint=self.api_urls.get(deployment, "us1"))
         self.kvstore = kvstore
         self.session=None
         self.headers=None
@@ -280,4 +294,6 @@ if __name__ == '__main__':
     duration = 1*60*60*1000
     # print(api.run_saved_search("Threats Over Time - VPC", duration))
     # print(api.run_search_from_panel('Total Alerts', 'Netskope - Alert Overview', duration))
-    print(api.run_search_from_panel('Failed Authentications', 'MongoDB Atlas - Audit', duration))
+    # print(api.run_search_from_panel('Failed Authentications', 'MongoDB Atlas - Audit', duration))
+    print(api.run_search_from_panel('lag by node', 'US2 Search Lag Playbook', duration))
+    # print(api.run_raw_search())
