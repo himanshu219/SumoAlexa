@@ -119,6 +119,8 @@ class SavedSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
         time = get_slot_value(handler_input=handler_input, slot_name="minutes")
         duration = int(time) * 60 * 1000 if time else 60 * 60 * 1000
         saved_search_name = params["savedsearch"]["resolved"]["name"]
+        if not saved_search_name:
+            saved_search_name = get_slot_value(handler_input, slot_name='savedsearch')
         speak_output = sumoapi.run_saved_search(saved_search_name, duration)
         return (
             handler_input.response_builder
@@ -145,8 +147,12 @@ class ExecutePanelIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler)
         params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
 
         logger.info("Params>>"+str(params))
+
         panel = params["panel"]["resolved"]["name"]
         dashboard = params["dashboard"]["resolved"]["name"]
+
+        panel = panel if panel else get_slot_value(handler_input, slot_name='panel')
+        dashboard = dashboard if dashboard else get_slot_value(handler_input, slot_name='dashboard')
 
         speak_output = sumoapi.run_search_from_panel(panel,dashboard,duration)
 
@@ -316,9 +322,11 @@ class BlockerBugsIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
 
         if params["component"]["resolved"]:
             component = params["component"]["resolved"]["name"]
+            component = component if component else get_slot_value(handler_input, slot_name='component')
             speak_output = self.get_release_blockers_by_component(component)
         else:
             assignee = params["assignee"]["resolved"]["name"]
+            assignee = assignee if assignee else get_slot_value(handler_input, slot_name='assignee')
             speak_output = self.get_release_blockers_by_assignee(assignee)
 
         return (
@@ -354,6 +362,7 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
 
         if params["by"]["resolved"]:
             by = params["by"]["resolved"]["name"]
+            by = by if by else get_slot_value(handler_input, slot_name='by')
             logger.info("Input>>> " + search + "  " + source + "  " + str(time) + " by "+by)
             search_query = "_sourceCategory="+source + " " + search + " | count by "+ by
         else:

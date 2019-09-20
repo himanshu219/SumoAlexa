@@ -168,6 +168,11 @@
                     "values": [
                         {
                             "name": {
+                                "value": "email AND user"
+                            }
+                        },
+                        {
+                            "name": {
                                 "value": "error or exception or failure or fail ",
                                 "synonyms": [
                                     "failures"
@@ -189,6 +194,16 @@
                 {
                     "name": "source",
                     "values": [
+                        {
+                            "name": {
+                                "value": "cloudwatch_logs"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Labs/AWS/Apache"
+                            }
+                        },
                         {
                             "name": {
                                 "value": "remix"
@@ -219,6 +234,16 @@
                 {
                     "name": "savedsearch",
                     "values": [
+                        {
+                            "name": {
+                                "value": "Failed Audit Events"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Open Alerts"
+                            }
+                        },
                         {
                             "name": {
                                 "value": "Threats over time in VPC",
@@ -349,19 +374,18 @@
                     "values": [
                         {
                             "name": {
-                                "value": "UI",
+                                "value": "Search Experience",
                                 "synonyms": [
-                                    "Prada",
-                                    "UI"
+                                    "Experience",
+                                    "Search Experience"
                                 ]
                             }
                         },
                         {
                             "name": {
-                                "value": "Search Experience",
+                                "value": "Live tail",
                                 "synonyms": [
-                                    "Search Experience",
-                                    "Experience"
+                                    "Live Tail"
                                 ]
                             }
                         }
@@ -417,6 +441,38 @@
                     "values": [
                         {
                             "name": {
+                                "value": "Last 3 Errors by Hostname",
+                                "synonyms": [
+                                    "Last 3 Errors by Hostname"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Recent Events",
+                                "synonyms": [
+                                    "Recent Events"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Max Flow Time",
+                                "synonyms": [
+                                    "Max Flow Time"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Top 5 Ports by Traffic",
+                                "synonyms": [
+                                    "Top 5 Ports by Traffic"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
                                 "value": "US2-SuccessRate",
                                 "synonyms": [
                                     "us2 success rate",
@@ -447,6 +503,32 @@
                 {
                     "name": "dashboard",
                     "values": [
+                        {
+                            "name": {
+                                "value": "MongoDB Atlas - Overview",
+                                "synonyms": [
+                                    "MongoDB Atlas  Overview"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Amazon VPC Flow Logs - Security Groups",
+                                "synonyms": [
+                                    "Amazon VPC - Security Groups",
+                                    "Amazon VPC Flow Logs - Security Groups",
+                                    "Amazon VPC Flow Logs "
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Overview",
+                                "synonyms": [
+                                    "Overview"
+                                ]
+                            }
+                        },
                         {
                             "name": {
                                 "value": "End To End Tests",

@@ -8,10 +8,20 @@ import re
 
 from errors import SumoException
 from sumologic import SumoLogic
-
+import unicodedata
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+def matchstr(first, second):
+    def slugify(s):
+        s = s.decode() if isinstance(s, bytes) else s
+        slug = unicodedata.normalize('NFKD', s)
+        slug = re.sub(r'[^a-z0-9]+', '-', slug).strip('-')
+        slug = re.sub(r'[-]+', '-', slug)
+        slug = slug.encode('ascii', 'ignore').lower()
+        return slug
+
+    return slugify(first) == slugify(second)
 
 class SumoAPI(object):
 
@@ -180,7 +190,7 @@ class SumoAPI(object):
         if len(folder.get("children", [])) > 0:
             for childdict in folder["children"]:
                 for _, child in childdict.items():
-                    if child["type"] == "searchReference" and child['name'].lower().startswith(name.lower()):
+                    if child["type"] == "searchReference" and matchstr(child['name'], name):
                         content = child
                     elif child["type"] == "folder":
                         folders.append(child)
@@ -202,7 +212,7 @@ class SumoAPI(object):
         content = None
         dashboard = self._get_dashboard(dash_access_key)
         for panel in dashboard['panels']:
-            if panel['title'].lower().startswith(panel_name.lower()):
+            if matchstr(panel['title'], panel_name):
                 content = panel
                 break
         return content
@@ -215,7 +225,7 @@ class SumoAPI(object):
         if len(folder.get("children", [])) > 0:
             for childdict in folder["children"]:
                 for _, child in childdict.items():
-                    if child["type"] == "interactiveReportReference" and child['name'].lower().startswith(dashboard_name.lower()):
+                    if child["type"] == "interactiveReportReference" and matchstr(child['name'], dashboard_name):
                         content = self._get_panel_from_dashboard(child['accessKey'], panel_name)
                     elif child["type"] == "folder":
                         folders.append(child)
@@ -264,14 +274,10 @@ class SumoAPI(object):
         return result['folder']
 
 if __name__ == '__main__':
-    access_id = ""
-    access_key = ""
-    deployment = ""
-    email = ""
-    password = ""
-    kvstore = ""
-    api=SumoAPI(access_id, access_key, deployment, email, password, kvstore)
+    from lambda_function import access_id ,access_key,deployment,email,password
+    api=SumoAPI(access_id, access_key, deployment, email, password, "")
 
     duration = 1*60*60*1000
-    print(api.run_saved_search("Threats Over Time - VPC", duration))
+    # print(api.run_saved_search("Threats Over Time - VPC", duration))
     # print(api.run_search_from_panel('Total Alerts', 'Netskope - Alert Overview', duration))
+    print(api.run_search_from_panel('Failed Authentications', 'MongoDB Atlas - Audit', duration))
