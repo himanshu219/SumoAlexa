@@ -57,7 +57,108 @@
                         }
                     ],
                     "samples": [
+                        "run saved search {savedsearch}",
                         "run saved search {savedsearch} for last {minutes} minutes"
+                    ]
+                },
+                {
+                    "name": "WhatsNew",
+                    "slots": [],
+                    "samples": [
+                        "List latest features of sumo logic",
+                        "Latest sumo features",
+                        "What are the new feature in sumo",
+                        "Tell me something new about sumo logic",
+                        "Hey What's new in sumo"
+                    ]
+                },
+                {
+                    "name": "ServiceStatus",
+                    "slots": [
+                        {
+                            "name": "deployment",
+                            "type": "sumodeployments"
+                        }
+                    ],
+                    "samples": [
+                        "Tell me about sumo logic service status for {deployment}",
+                        "sumo logic service status for {deployment}",
+                        "Sumo logic operation status for {deployment}",
+                        "Sumo logic operation status",
+                        "sumo logic service status",
+                        "Tell me about sumo logic service status"
+                    ]
+                },
+                {
+                    "name": "JenkinsStatus",
+                    "slots": [],
+                    "samples": [
+                        "Howz jenkins looking today",
+                        "Tell me about broken Jenkins jobs",
+                        "Broken Jenkins job status",
+                        "Jenkins Status",
+                        "Give me Jenkins status",
+                        "Tell me about jenkins status"
+                    ]
+                },
+                {
+                    "name": "ReleaseBlocker",
+                    "slots": [
+                        {
+                            "name": "release",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "get release blockers for {release}",
+                        "release {release} blockers",
+                        "Give me the status of release {release}",
+                        "Release blocker bugs in release {release}",
+                        "Status of release {release}",
+                        "Tell me about release {release}"
+                    ]
+                },
+                {
+                    "name": "BlockerBugs",
+                    "slots": [
+                        {
+                            "name": "component",
+                            "type": "component"
+                        },
+                        {
+                            "name": "assignee",
+                            "type": "assignee"
+                        }
+                    ],
+                    "samples": [
+                        "bugs for {component}",
+                        "bugs on {assignee}",
+                        "{component} component blocker bugs",
+                        "blocker bugs assigned to {assignee}",
+                        "blocker bugs by assignee {assignee}",
+                        "blocker bugs by component {component}"
+                    ]
+                },
+                {
+                    "name": "ExecutePanel",
+                    "slots": [
+                        {
+                            "name": "panel",
+                            "type": "panel"
+                        },
+                        {
+                            "name": "dashboard",
+                            "type": "dashboard"
+                        },
+                        {
+                            "name": "minutes",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "for last {minutes} minutes run  panel {panel} from {dashboard} dashoard",
+                        "run panel {panel} from {dashboard} dashoard for last {minutes} minutes",
+                        "run panel {panel} from {dashboard} dashoard"
                     ]
                 }
             ],
@@ -120,6 +221,14 @@
                     "values": [
                         {
                             "name": {
+                                "value": "Threats over time in VPC",
+                                "synonyms": [
+                                    "Threats over time in VPC"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
                                 "value": "KattaErrors"
                             }
                         },
@@ -158,8 +267,259 @@
                             }
                         }
                     ]
+                },
+                {
+                    "name": "sumodeployments",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "ca",
+                                "synonyms": [
+                                    "Montreal",
+                                    "Canada"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "jp",
+                                "synonyms": [
+                                    "Tokyo",
+                                    "Japan"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "au",
+                                "synonyms": [
+                                    "Sydney",
+                                    "Australia"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "de",
+                                "synonyms": [
+                                    "France",
+                                    "Europe 2"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "eu",
+                                "synonyms": [
+                                    "Ierland",
+                                    "Dublin",
+                                    "Europe 1"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "fed",
+                                "synonyms": [
+                                    "Fedramp",
+                                    "America Federal"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "us2",
+                                "synonyms": [
+                                    "North America 2"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "us1",
+                                "synonyms": [
+                                    "North America 1"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "component",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "UI",
+                                "synonyms": [
+                                    "Prada",
+                                    "UI"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Search Experience",
+                                "synonyms": [
+                                    "Search Experience",
+                                    "Experience"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "assignee",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "vgarg",
+                                "synonyms": [
+                                    "Vaibhav Garg"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "agaur",
+                                "synonyms": [
+                                    "Aditya Gaur"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "carlton",
+                                "synonyms": [
+                                    "Carlton"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "rchhetri",
+                                "synonyms": [
+                                    "Roshan"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "hpal",
+                                "synonyms": [
+                                    "Himanshu"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "panel",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "US2-SuccessRate",
+                                "synonyms": [
+                                    "us2 success rate",
+                                    "us2"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Syd-SuccessRate",
+                                "synonyms": [
+                                    "syd success rate",
+                                    "syd"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Prod-SuccessRate",
+                                "synonyms": [
+                                    "prod success rate",
+                                    "prod"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "dashboard",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "End To End Tests",
+                                "synonyms": [
+                                    "End to End",
+                                    "E2E"
+                                ]
+                            }
+                        }
+                    ]
                 }
             ]
-        }
+        },
+        "dialog": {
+            "intents": [
+                {
+                    "name": "ExecutePanel",
+                    "confirmationRequired": false,
+                    "prompts": {},
+                    "slots": [
+                        {
+                            "name": "panel",
+                            "type": "panel",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.845128357406.1065423267520"
+                            }
+                        },
+                        {
+                            "name": "dashboard",
+                            "type": "dashboard",
+                            "confirmationRequired": false,
+                            "elicitationRequired": true,
+                            "prompts": {
+                                "elicitation": "Elicit.Slot.845128357406.1021655103365"
+                            }
+                        },
+                        {
+                            "name": "minutes",
+                            "type": "AMAZON.NUMBER",
+                            "confirmationRequired": false,
+                            "elicitationRequired": false,
+                            "prompts": {}
+                        }
+                    ]
+                }
+            ],
+            "delegationStrategy": "ALWAYS"
+        },
+        "prompts": [
+            {
+                "id": "Elicit.Slot.845128357406.1065423267520",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "for which panel?"
+                    },
+                    {
+                        "type": "PlainText",
+                        "value": "which panel ?"
+                    }
+                ]
+            },
+            {
+                "id": "Elicit.Slot.845128357406.1021655103365",
+                "variations": [
+                    {
+                        "type": "PlainText",
+                        "value": "give me the name of dashboard please"
+                    }
+                ]
+            }
+        ]
     }
 }

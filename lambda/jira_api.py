@@ -1,20 +1,9 @@
 import sys
 sys.path.insert(0, '/opt')
 from jira import JIRA
+from utils import capture_err
 # import functools
 
-
-def capture_err(f):
-
-    # @functools.wraps
-    def wrapper(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except Exception as e:
-            print(e)
-            return {}
-
-    return wrapper
 
 class JiraAPI(object):
 

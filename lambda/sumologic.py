@@ -193,3 +193,6 @@ class SumoLogic(object):
 
     def check_import_status(self, folder_id, job_id):
         return self.get('/content/folders/%s/import/%s/status' % (folder_id, job_id), version='v2')
+
+    def get_folder(self, folder_id):
+        return self.get('/content/folders/%s' % folder_id, version='v2')

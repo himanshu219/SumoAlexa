@@ -19,12 +19,22 @@ from ask_sdk_core.handler_input import HandlerInput
 import six
 from ask_sdk_model import Response
 
-from api import SumoAPI, DochubPageAPI, StatusPageAPI, get_sep
+from sumo_api import SumoAPI
+from utils import get_sep
+from scrapping_api import DochubPageAPI, StatusPageAPI
 from kvstore import adaptor, KVStore
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+access_id = ""
+access_key = ""
+deployment = ""
+email = ""
+password = ""
+ldap_username = ""
+ldap_password = ""
+ngrok_url = ""
 
 class BaseSearchIntentHandler(object):
 
@@ -101,13 +111,45 @@ class SavedSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
         kvstore = KVStore(handler_input.request_envelope, adaptor)
-        sumoapi = SumoAPI("suNNLllvfjDK4s", "lbCmtyd09TcK0uSZX7WmIhDuwBqIKs5U1FvJ8Q5TFYkdWNodhVQYtntIPq4GhMuX", "us1",
-                          kvstore)
+        sumoapi = SumoAPI(access_id, access_key, deployment, email, password, kvstore)
         logger.info(handler_input.request_envelope)
         params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
         logger.info("Params %s" % params)
-        speak_output = sumoapi.run_saved_search("_sourceCategory=%s*" % params["search"]["synonym"])
-        # speak_output = "Job Scheduled"
+
+        time = get_slot_value(handler_input=handler_input, slot_name="minutes")
+        duration = int(time) * 60 * 1000 if time else 60 * 60 * 1000
+        saved_search_name = params["savedsearch"]["resolved"]["name"]
+        speak_output = sumoapi.run_saved_search(saved_search_name, duration)
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                # .ask("add a reprompt if you want to keep the session open for the user to respond")
+                .response
+        )
+
+class ExecutePanelIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("ExecutePanel")(handler_input)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+        kvstore = KVStore(handler_input.request_envelope, adaptor)
+        sumoapi = SumoAPI(access_id, access_key, deployment, email, password, kvstore)
+        logger.info(handler_input.request_envelope)
+
+        time = get_slot_value(handler_input=handler_input, slot_name="minutes")
+        duration = int(time)*60*1000 if time else 60*60*1000
+
+        params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
+
+        logger.info("Params>>"+str(params))
+        panel = params["panel"]["resolved"]["name"]
+        dashboard = params["dashboard"]["resolved"]["name"]
+
+        speak_output = sumoapi.run_search_from_panel(panel,dashboard,duration)
+
         return (
             handler_input.response_builder
                 .speak(speak_output)
@@ -144,7 +186,7 @@ class JenkinsStatusIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler
     def get_failing_jobs(self):
         text = "Sorry! unable to fetch Jenkins Job status"
         try:
-            response = requests.get("http://d4d243ea.ngrok.io/failing_jobs")
+            response = requests.get("http://%s/failing_jobs" % ngrok_url)
 
             if response.ok:
                 resp = response.json()
@@ -178,7 +220,7 @@ class ReleaseBlockerIntentHandler(AbstractRequestHandler, BaseSearchIntentHandle
     def get_release_blockers(self, release_branch):
         text = "Sorry! unable to connect with Jira service"
         try:
-            response = requests.get("http://d4d243ea.ngrok.io/release_blocker_issues/%s" % release_branch)
+            response = requests.get("http://%s/release_blocker_issues/%s" % (ngrok_url, release_branch))
             if response.ok:
                 resp = response.json()
                 logger.info(resp)
@@ -237,7 +279,7 @@ class BlockerBugsIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
     def get_release_blockers_by_assignee(self, assignee):
         text = "Sorry! unable to connect with Jira service"
         try:
-            response = requests.get("http://d4d243ea.ngrok.io/assigned_blocker_issues/%s" % assignee)
+            response = requests.get("http://%s/assigned_blocker_issues/%s" % (ngrok_url, assignee))
             if response.ok:
                 resp = response.json()
                 logger.info(resp)
@@ -252,7 +294,7 @@ class BlockerBugsIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
     def get_release_blockers_by_component(self, component):
         text = "Sorry! unable to connect with Jira service"
         try:
-            response = requests.get("http://d4d243ea.ngrok.io/component_blocker_issues/%s" % component)
+            response = requests.get("http://%s/component_blocker_issues/%s" % (ngrok_url, component))
             if response.ok:
                 resp = response.json()
                 logger.info(resp)
@@ -296,16 +338,15 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
         kvstore = KVStore(handler_input.request_envelope, adaptor)
-        sumoapi = SumoAPI("suvo3cEBM5Vfuv", "4reTLRbeczDYu2NTUNNDh9bnhiQ63I6q7a9gIzJP5Eil2VUHuqLXESebAYbzEEGH", "us1",
-                          kvstore)
+        sumoapi = SumoAPI(access_id, access_key, deployment, email, password, kvstore)
         logger.info(handler_input.request_envelope)
 
         search = get_slot_value(
             handler_input=handler_input, slot_name="search")
         source = get_slot_value(
             handler_input=handler_input, slot_name="source")
-        time = int(get_slot_value(
-            handler_input=handler_input, slot_name="minutes"))
+        time = get_slot_value(handler_input=handler_input, slot_name="minutes")
+        duration = int(time) * 60 * 1000 if time else 60 * 60 * 1000
         # by = get_slot_value(handler_input=handler_input, slot_name="by")
         params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
 
@@ -322,7 +363,7 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
         logger.info("Search Query >> "+search_query)
 
 
-        speak_output = sumoapi.run_raw_search(search_query, time*60*1000)
+        speak_output = sumoapi.run_raw_search(search_query, duration)
 
         return (
             handler_input.response_builder
@@ -454,6 +495,7 @@ sb.add_request_handler(ServiceStatusIntentHandler())
 sb.add_request_handler(JenkinsStatusIntentHandler())
 sb.add_request_handler(ReleaseBlockerIntentHandler())
 sb.add_request_handler(BlockerBugsIntentHandler())
+sb.add_request_handler(ExecutePanelIntentHandler())
 
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())
@@ -463,6 +505,6 @@ sb.add_request_handler(SessionEndedRequestHandler())
 sb.add_request_handler(IntentReflectorHandler())  # make sure IntentReflectorHandler is last so it doesn't override your custom intent handlers
 
 sb.add_exception_handler(CatchAllExceptionHandler())
-# sb.withR
+
 lambda_handler = sb.lambda_handler()
 

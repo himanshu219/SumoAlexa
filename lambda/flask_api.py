@@ -1,10 +1,10 @@
 import sys
 sys.path.insert(0, '/opt')
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, jsonify
 
 from jenkins_api import JenkinsAPI
-from jiraapi import JiraAPI
-
+from jira_api import JiraAPI
+from lambda_function import ldap_username as username, ldap_password as password
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = 'secret'
@@ -28,8 +28,6 @@ app.config['SECRET_KEY'] = 'secret'
 #                 environ['REQUEST_METHOD'] = method
 #         return self.app(environ, start_response)
 
-username = ""
-password = ""
 
 jira_api = JiraAPI(username, password)
 jenkins_api = JenkinsAPI(username, password)
