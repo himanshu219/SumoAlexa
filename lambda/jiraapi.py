@@ -28,7 +28,11 @@ class JiraAPI(object):
         print(issue.fields.issuetype.name)  # 'New Feature'
         print(issue.fields.reporter.displayName)  # 'Mike Cannon-Brookes [Atlassian]'
         print(issue.fields.project.name)
-        return {'id': jira_id, 'name': issue.fields.summary, 'component': issue.fields.project.name}
+        print(issue.fields.components)
+        print(issue.fields.description)
+        print(issue.fields.votes)
+        print(issue.fields.status)
+        return {'id': jira_id, 'summary': issue.fields.summary, 'status': str(issue.fields.status), 'votes': str(issue.fields.votes), 'components': [str(component) for component in issue.fields.components]}
 
     @capture_err
     def get_blocker_issues(self, branch, limit=5):
@@ -42,17 +46,20 @@ class JiraAPI(object):
         query = 'component=\"%s\" AND project in (10000, 10640) AND status != Closed AND type in (Bug, "Bug for User Story", "Customer Support Issue") AND priority = Blocker ORDER BY priority DESC, status ASC, created DESC' % (name)
         print(query)
         issues_in_proj = self.client.search_issues(query)
-        return {'count': len(issues_in_proj), 'issues': [issue.fields.summary for issue in issues_in_proj][:limit]}
+        issues = [{'summary': issue.fields.summary, 'status': str(issue.fields.status), 'assignee': issue.fields.assignee.displayName} for issue in
+                  issues_in_proj[:limit]]
+        return {'count': len(issues_in_proj), 'issues': issues}
 
     @capture_err
     def get_blocker_issues_by_user(self, user, limit=5):
         query = 'assignee=%s AND project in (10000, 10640) AND status != Closed AND type in (Bug, "Bug for User Story", "Customer Support Issue") AND priority = Blocker ORDER BY priority DESC, status ASC, created DESC' % (user)
         issues_in_proj = self.client.search_issues(query)
-        return {'count': len(issues_in_proj), 'issues': [issue.fields.summary for issue in issues_in_proj][:limit]}
+        issues = [{'summary': issue.fields.summary, 'status': str(issue.fields.status)} for issue in issues_in_proj[:limit]]
+        return {'count': len(issues_in_proj), 'issues': issues }
 
     @capture_err
     def get_latest_reported_issues(self, limit=3):
-        return [{'status': issue.fields.status, 'summary': issue.fields.summary} for issue in self.client.search_issues('reporter = currentUser() order by created desc', maxResults=limit)]
+        return [{'status': issue.fields.status, 'summary': issue.fields.summary, 'assignee': issue.fields.assignee.displayName} for issue in self.client.search_issues('reporter = currentUser() order by created desc', maxResults=limit)]
 
 
 
