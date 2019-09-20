@@ -50,9 +50,10 @@ class BaseSearchIntentHandler(object):
                 status_code = slot_item.resolutions.resolutions_per_authority[0].status.code
 
                 if status_code == StatusCode.ER_SUCCESS_MATCH:
+                    resolved = slot_item.resolutions.resolutions_per_authority[0].values[0].value.__dict__['name']
                     slot_values[name] = {
                         "synonym": slot_item.value,
-                        "resolved": slot_item.resolutions.resolutions_per_authority[0].values[0].value.__dict__,
+                        "resolved": resolved,
                         # to make it JSON serializable
                         "is_validated": True,
                     }
@@ -118,7 +119,7 @@ class SavedSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
 
         time = get_slot_value(handler_input=handler_input, slot_name="minutes")
         duration = int(time) * 60 * 1000 if time else 60 * 60 * 1000
-        saved_search_name = params["savedsearch"]["resolved"]["name"]
+        saved_search_name = params["savedsearch"]["resolved"]
         if not saved_search_name:
             saved_search_name = get_slot_value(handler_input, slot_name='savedsearch')
         speak_output = sumoapi.run_saved_search(saved_search_name, duration)
@@ -148,8 +149,8 @@ class ExecutePanelIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler)
 
         logger.info("Params>>"+str(params))
 
-        panel = params["panel"]["resolved"]["name"]
-        dashboard = params["dashboard"]["resolved"]["name"]
+        panel = params["panel"]["resolved"]
+        dashboard = params["dashboard"]["resolved"]
 
         panel = panel if panel else get_slot_value(handler_input, slot_name='panel')
         dashboard = dashboard if dashboard else get_slot_value(handler_input, slot_name='dashboard')
@@ -264,7 +265,7 @@ class ServiceStatusIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler
         params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
         logger.info("Params %s" % params)
         if params["deployment"]["resolved"]:
-            deployment = params["deployment"]["resolved"]["name"]
+            deployment = params["deployment"]["resolved"]
             speak_output = StatusPageAPI().get_service_status(deployment)
         else:
             speak_output = StatusPageAPI().get_service_status()
@@ -321,11 +322,11 @@ class BlockerBugsIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
         logger.info("Params>>" + str(params))
 
         if params["component"]["resolved"]:
-            component = params["component"]["resolved"]["name"]
+            component = params["component"]["resolved"]
             component = component if component else get_slot_value(handler_input, slot_name='component')
             speak_output = self.get_release_blockers_by_component(component)
         else:
-            assignee = params["assignee"]["resolved"]["name"]
+            assignee = params["assignee"]["resolved"]
             assignee = assignee if assignee else get_slot_value(handler_input, slot_name='assignee')
             speak_output = self.get_release_blockers_by_assignee(assignee)
 
@@ -360,8 +361,8 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
 
         logger.info("Params>>"+str(params))
 
-        if params["by"]["resolved"]:
-            by = params["by"]["resolved"]["name"]
+        if 'by' in params and params["by"]["resolved"]:
+            by = params["by"]["resolved"]
             by = by if by else get_slot_value(handler_input, slot_name='by')
             logger.info("Input>>> " + search + "  " + source + "  " + str(time) + " by "+by)
             search_query = "_sourceCategory="+source + " " + search + " | count by "+ by
