@@ -121,7 +121,7 @@ class SumoAPI(object):
                 if for_field:
                     for_text = row[for_field]
                     cnt_values = "".join(["%s is %s," % (k, v) for k, v in row.items() if k != for_field])
-                    speaktext += "%s for %s%s\n" % (cnt_values, for_text, sep)
+                    speaktext += "%s for %s.%s\n" % (cnt_values.strip(","), for_text, sep)
                 else:
                     cnt_values = "".join(["%s is %s," % (k, v) for k, v in row.items()])
                     if num_rows == i+1:
