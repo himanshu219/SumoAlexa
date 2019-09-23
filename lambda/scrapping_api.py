@@ -1,3 +1,4 @@
+import datetime
 import sys
 sys.path.insert(0, '/opt')
 
@@ -69,7 +70,7 @@ class StatusPageAPI(object):
             return None
 
     def get_service_status(self, deployment='syd'):
-        day = 12 #datetime.datetime.now().day
+        day = datetime.datetime.now().day
         sections = self.fetch_page(deployment)
         text = "Sorry! unable to fetch Release notes"
         if sections:

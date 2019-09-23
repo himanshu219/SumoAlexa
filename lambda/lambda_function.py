@@ -201,6 +201,8 @@ class JenkinsStatusIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler
                 text = "There are %d failing Jenkins Jobs in Master and %d in Stag. Out of which %d are Integration tests %d are End to End %d are Release and %d are Flow jobs" % (
                 resp['failing_master_jobs'], resp['failing_stag_jobs'], resp['failing_it_jobs'],
                 resp['failing_e2e_jobs'], resp['failing_release_jobs'], resp['failing_flow_jobs'])
+            else:
+                logger.error(response.content)
         except Exception as e:
             logger.error(e, traceback.format_exc())
 
@@ -231,8 +233,12 @@ class ReleaseBlockerIntentHandler(AbstractRequestHandler, BaseSearchIntentHandle
             if response.ok:
                 resp = response.json()
                 logger.info(resp)
-                jira_text = ",".join("%s %s assigned to %s" % (issue['summary'], get_sep(1), issue['assignee']) for issue in resp['issues'])
-                text = "There are %d release blockers for release branch i19.%s. Top %d are following: %s" % (resp['count'], release_branch, min(5, resp['count']), jira_text)
+                text = "There are %d release blockers for release branch i19.%s." % (resp['count'], release_branch)
+                if resp['count'] > 0:
+                    jira_text = ",".join("%s %s assigned to %s" % (issue['summary'], get_sep(1), issue['assignee']) for issue in resp['issues'])
+                    text += "Top %d are following: %s" % (min(5, resp['count']), jira_text)
+            else:
+                logger.error(response.content)
         except Exception as e:
             logger.error(e, traceback.format_exc())
 
@@ -290,9 +296,12 @@ class BlockerBugsIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
             if response.ok:
                 resp = response.json()
                 logger.info(resp)
-                jira_text = ",".join("%s %s with status %s" % (issue['summary'], get_sep(1), issue['status']) for issue in resp['issues'])
-                text = "There are %d blockers bugs assigned to %s. Top %d are following: %s" % (
-                resp['count'], assignee, min(5, resp['count']), jira_text)
+                text = "There are %d blockers bugs assigned to %s." % (resp['count'], assignee)
+                if resp['count'] > 0:
+                    jira_text = ",".join("%s %s with status %s" % (issue['summary'], get_sep(1), issue['status']) for issue in resp['issues'])
+                    text += "Top %d are following: %s" % (min(5, resp['count']), jira_text)
+                else:
+                    logger.error(response.content)
         except Exception as e:
             logger.error(e, traceback.format_exc())
 
@@ -305,9 +314,12 @@ class BlockerBugsIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
             if response.ok:
                 resp = response.json()
                 logger.info(resp)
-                jira_text = ",".join("%s %s assigned to %s" % (issue['summary'], get_sep(1), issue['assignee']) for issue in resp['issues'])
-                text = "There are %d blockers bugs in %s component. Top %d are following: %s" % (
-                resp['count'], component, min(5, resp['count']), jira_text)
+                text = "There are %d blockers bugs in %s component" % (resp['count'], component)
+                if resp['count'] > 0:
+                    jira_text = ",".join("%s %s assigned to %s" % (issue['summary'], get_sep(1), issue['assignee']) for issue in resp['issues'])
+                    text += "Top %d are following: %s" % (min(5, resp['count']), jira_text)
+                else:
+                    logger.error(response.content)
         except Exception as e:
             logger.error(e, traceback.format_exc())
 
@@ -383,16 +395,86 @@ class RawSearchIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
         )
 
 
-class HelpIntentHandler(AbstractRequestHandler):
+class WhoamIHandler(AbstractRequestHandler):
+    """Generic error handling to capture any syntax or routing errors. If you receive an error
+    stating the request handler chain is not found, you have not implemented a handler for
+    the intent being invoked or included it in the skill builder below.
+    """
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("WhoAmI")(handler_input)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+
+        speak_output = "I am Aces - Alexa Controlled Efficient Sumo.I support integration with Jira, SumoLogic and Jenkins. You can use me to run Sumo search queries. Know about latest sumo features and ongoing incidents. Also, I can help you with status of Jenkins jobs and Jira bugs."
+
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .ask(speak_output)
+                .response
+        )
+
+
+class EchoHandler(AbstractRequestHandler):
+    """Generic error handling to capture any syntax or routing errors. If you receive an error
+    stating the request handler chain is not found, you have not implemented a handler for
+    the intent being invoked or included it in the skill builder below.
+    """
+
+    def can_handle(self, handler_input):
+        # type: (HandlerInput) -> bool
+        return ask_utils.is_intent_name("EchoText")(handler_input)
+
+    def handle(self, handler_input):
+        # type: (HandlerInput) -> Response
+
+        speak_output = get_slot_value(handler_input=handler_input, slot_name="sentence")
+
+        return (
+            handler_input.response_builder
+                .speak(speak_output)
+                .ask(speak_output)
+                .response
+        )
+
+
+class HelpIntentHandler(AbstractRequestHandler, BaseSearchIntentHandler):
     """Handler for Help Intent."""
 
     def can_handle(self, handler_input):
         # type: (HandlerInput) -> bool
-        return ask_utils.is_intent_name("AMAZON.HelpIntent")(handler_input)
+        return ask_utils.is_intent_name("AMAZON.HelpIntent")(handler_input) or ask_utils.is_intent_name("CustomHelp")(handler_input)
 
     def handle(self, handler_input):
         # type: (HandlerInput) -> Response
-        speak_output = "You can say hello to me! How can I help?"
+
+        params = self.get_slot_values(handler_input.request_envelope.request.intent.slots)
+
+        command_name = params['commandname']['resolved'] if params else None
+
+        if command_name:
+            helpdocs = {
+                "SumoLogic": ''' 
+                    To run a raw search say Find keywords placeholder in source category placeholder source category name by field name placeholder for last number placeholder minutes.<break time="1s"/> 
+                    To run specify panel query say Run panel name panel from dashboard name dashoard for last number minutes.<break time="1s"/>
+                    To run a saved search say Run saved search name saved search name for last number minutes.<break time="1s"/>
+                    To learn about sumologic service status Say sumo logic service status for deployment name
+                    To learn about new feature in sumo Say whats new in Sumo logic''',
+                "Jenkins": ''' To learn about release status say Give me the status of release release number ''',
+                "Jira": '''
+                    To learn about broken jobs say Tell me about broken Jenkins jobs.<break time="1s"/>
+                    To learn about bugs for a specific component say bugs for component name.<break time="1s"/> 
+                    To learn about assigned bugs. Say bugs on assignee name.<break time="1s"/> 
+                    To get jira summary. Say tell me about jira id jira '''
+            }
+            speak_output = "<speak>Following phrases are supported" + helpdocs[command_name] + "</speak>"
+        else:
+            speak_output = "Currently I support 3 integration Jira, SumoLogic and Jenkins. To learn about specific commands try help commandname"
+
+        print(speak_output)
 
         return (
             handler_input.response_builder
@@ -506,6 +588,8 @@ sb.add_request_handler(JenkinsStatusIntentHandler())
 sb.add_request_handler(ReleaseBlockerIntentHandler())
 sb.add_request_handler(BlockerBugsIntentHandler())
 sb.add_request_handler(ExecutePanelIntentHandler())
+sb.add_request_handler(EchoHandler())
+sb.add_request_handler(WhoamIHandler())
 
 sb.add_request_handler(HelpIntentHandler())
 sb.add_request_handler(CancelOrStopIntentHandler())

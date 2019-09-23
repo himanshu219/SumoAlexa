@@ -1,3 +1,4 @@
+import decimal
 import sys
 sys.path.insert(0, '/opt')
 import requests
@@ -23,6 +24,17 @@ def slugify(s):
 
 def matchstr(first, second):
     return slugify(first) == slugify(second)
+
+def isnumber(val):
+    if isinstance(val, (float, int, decimal.Decimal)):
+        return True
+    try:
+        float(val)
+        return True
+    except:
+        pass
+    return False
+
 
 class SumoAPI(object):
 
@@ -63,6 +75,64 @@ class SumoAPI(object):
         self.password = password
         self._login()
 
+    def _get_aggregate_field(self, res):
+        '''
+            SVD count is 10
+            multiple fields count is 10 for  <collectorname>
+                key matches count makes it potential find first key with non numeric value
+            no count field like first collector is <>, key is value  pick first field
+        '''
+
+        agg_fld = agg_fld_without_count_in_key = None
+        has_cnt_in_key = lambda key: re.findall(
+            r'\bavg\b | \bcount\b | \bcount_distinct\b | \bcount_frequent\b | \bmin\b | \bmax\b | \bpct\b | \bstddev\b | \bsum\b',
+            key, re.I | re.X)
+        for k, v in res.items():
+            if not isnumber(v):
+                if not agg_fld:
+                    agg_fld = k # first field without numeric
+                if not agg_fld_without_count_in_key and has_cnt_in_key(k.replace("_", " ")):
+                    agg_fld_without_count_in_key = k # first field without numeric and colname does not contains count
+                    break
+
+        return  agg_fld_without_count_in_key if agg_fld_without_count_in_key else agg_fld
+
+
+    def run_raw_search(self, search_query, duration):
+        sep= '<break time="1s"/>'
+        lsep = '<break time="2s"/>'
+        # saves job id and schedules search
+        response = self._run_search(search_query, duration)
+        # user_data = self.kvstore.get()
+        # search_jobs = user_data.get("search_jobs", [])
+        # search_jobs.append({"search_name": search_query, "job_id": response["id"],
+        #                     "is_aggregate": bool(self._is_aggregate_query(search_query))})
+        # self.kvstore.save({"search_jobs": search_jobs})
+        time.sleep(5)
+        response1 = self._get_search_results(response)
+        speaktext = "Found %d Results%s \n" % (len(response1),lsep)
+        num_rows = len(response1)
+        if num_rows > 0:
+            for_field = self._get_aggregate_field(response1[0])
+            print("For Field", for_field)
+            for i, row in enumerate(response1):
+                for k, v in row.items():
+                    row[k] = v
+                if for_field:
+                    for_text = row[for_field]
+                    cnt_values = "".join(["%s is %s," % (k, v) for k, v in row.items() if k != for_field])
+                    speaktext += "%s for %s%s\n" % (cnt_values, for_text, sep)
+                else:
+                    cnt_values = "".join(["%s is %s," % (k, v) for k, v in row.items()])
+                    if num_rows == i+1:
+                        # last row
+                        speaktext += "%s\n" % (cnt_values)
+                    else:
+                        speaktext += "%s. Next Row %s\n" % (cnt_values, sep)
+        print("query output",speaktext)
+        return "<speak>" + speaktext + "</speak>"
+
+
     def run_saved_search(self, name, duration):
         # saves job id and schedules search
         folder_id = self._get_personal_folder()
@@ -78,28 +148,6 @@ class SumoAPI(object):
         # search_jobs = user_data.get("search_jobs", [])
         # search_jobs.append({"search_name": name, "job_id": response["id"], "is_aggregate": bool(self._is_aggregate_query(search_query))})
         # self.kvstore.save({"search_jobs": search_jobs})
-
-    def run_raw_search(self, search_query, duration):
-        sep= '<break time="1s"/>'
-        lsep = '<break time="2s"/>'
-        # saves job id and schedules search
-        response = self._run_search(search_query, duration)
-        # user_data = self.kvstore.get()
-        # search_jobs = user_data.get("search_jobs", [])
-        # search_jobs.append({"search_name": search_query, "job_id": response["id"],
-        #                     "is_aggregate": bool(self._is_aggregate_query(search_query))})
-        # self.kvstore.save({"search_jobs": search_jobs})
-        time.sleep(5)
-        response1 = self._get_search_results(response)
-        speaktext = "Found %d Results%s \n" % (len(response1),lsep)
-        for i, res in enumerate(response1):
-            non_cnt_fields = ", ".join(["%s" % (v) for k, v in res.items() if not self._is_aggregate_query(k)])
-            cnt_values = "".join(["%s is %s," % (k, v) for k, v in res.items() if self._is_aggregate_query(k)])
-            if non_cnt_fields:
-                speaktext += "%s for %s%s\n" % (cnt_values, non_cnt_fields,sep)
-            else:
-                speaktext += "%s%s\n" % (cnt_values,sep)
-        return "<speak>" + speaktext + "</speak>"
 
     def run_search_from_panel(self, panel_name, dashboard_name, duration):
         folder_id = self._get_personal_folder()
@@ -185,9 +233,6 @@ class SumoAPI(object):
                 res[k]=v
             results.append(res)
         return results
-
-    def _is_aggregate_query(self, query):
-        return re.findall(r'\bavg\b | \bcount\b | \bcount_distinct\b | \bcount_frequent\b | \bfirst\b | \blast\b | \bmin\b | \bmax\b | \bmost_recent\b | \bleast_recent\b | \bpct\b | \bstddev\b | \bsum\b', query, re.I | re.X)
 
     def _get_saved_search_query(self, searchId):
         url = self.urls.get(self.deployment) + '/json/v1/savedsearch/getSingle/table?searchId=' + str(searchId)

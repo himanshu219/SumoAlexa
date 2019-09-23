@@ -40,7 +40,10 @@
                         }
                     ],
                     "samples": [
-                        "Find {search}  {by} in source category {source} for last {minutes} minutes",
+                        "Find {search} in source category {source}",
+                        "Look for {search} in source category {source} for last {minutes} minutes",
+                        "Look for {search} in source category {source}",
+                        "Find {search} in source category {source}  by {by} for last {minutes} minutes",
                         "Find {search} in source category {source} for last {minutes} minutes"
                     ]
                 },
@@ -81,6 +84,8 @@
                         }
                     ],
                     "samples": [
+                        "ongoing incident with Sumo logic for {deployment}",
+                        "Any ongoing incident in Sumo logic",
                         "Tell me about sumo logic service status for {deployment}",
                         "sumo logic service status for {deployment}",
                         "Sumo logic operation status for {deployment}",
@@ -98,7 +103,8 @@
                         "Broken Jenkins job status",
                         "Jenkins Status",
                         "Give me Jenkins status",
-                        "Tell me about jenkins status"
+                        "Tell me about jenkins status",
+                        "What's the status of jenkins"
                     ]
                 },
                 {
@@ -131,6 +137,7 @@
                         }
                     ],
                     "samples": [
+                        "bugs for {component} component",
                         "bugs for {component}",
                         "bugs on {assignee}",
                         "{component} component blocker bugs",
@@ -156,9 +163,48 @@
                         }
                     ],
                     "samples": [
-                        "for last {minutes} minutes run  panel {panel} from {dashboard} dashoard",
-                        "run panel {panel} from {dashboard} dashoard for last {minutes} minutes",
-                        "run panel {panel} from {dashboard} dashoard"
+                        "run  {panel} panel from {dashboard} dashoard for last {minutes} minutes",
+                        "run  {panel} panel from {dashboard} dashoard"
+                    ]
+                },
+                {
+                    "name": "EchoText",
+                    "slots": [
+                        {
+                            "name": "sentence",
+                            "type": "AMAZON.SearchQuery"
+                        }
+                    ],
+                    "samples": [
+                        "speak {sentence}",
+                        "Echo {sentence}"
+                    ]
+                },
+                {
+                    "name": "CustomHelp",
+                    "slots": [
+                        {
+                            "name": "commandname",
+                            "type": "commandname"
+                        }
+                    ],
+                    "samples": [
+                        "working with {commandname}",
+                        "how can i run {commandname}",
+                        "help me with {commandname}",
+                        "can you help me with {commandname}",
+                        "help {commandname}"
+                    ]
+                },
+                {
+                    "name": "WhoAmI",
+                    "slots": [],
+                    "samples": [
+                        "May i know you",
+                        "Who are you",
+                        "What is Aces",
+                        "Introduce yourself",
+                        "Tell me about yourself"
                     ]
                 }
             ],
@@ -166,11 +212,6 @@
                 {
                     "name": "search",
                     "values": [
-                        {
-                            "name": {
-                                "value": "email AND user"
-                            }
-                        },
                         {
                             "name": {
                                 "value": "error or exception or failure or fail ",
@@ -236,12 +277,11 @@
                     "values": [
                         {
                             "name": {
-                                "value": "Failed Audit Events"
-                            }
-                        },
-                        {
-                            "name": {
-                                "value": "Open Alerts"
+                                "value": "Out of SLO Customers",
+                                "synonyms": [
+                                    "out of slo customers",
+                                    "Out of SLO Customers"
+                                ]
                             }
                         },
                         {
@@ -374,6 +414,16 @@
                     "values": [
                         {
                             "name": {
+                                "value": "Alert"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "API"
+                            }
+                        },
+                        {
+                            "name": {
                                 "value": "Search Experience",
                                 "synonyms": [
                                     "Experience",
@@ -394,6 +444,14 @@
                 {
                     "name": "assignee",
                     "values": [
+                        {
+                            "name": {
+                                "value": "saubhagya",
+                                "synonyms": [
+                                    "saubhagya"
+                                ]
+                            }
+                        },
                         {
                             "name": {
                                 "value": "vgarg",
@@ -441,6 +499,30 @@
                     "values": [
                         {
                             "name": {
+                                "value": "Prod-SuccessRate",
+                                "synonyms": [
+                                    "Prod Success Rate"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Lag by node",
+                                "synonyms": [
+                                    "lag by node"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Failed Authentications",
+                                "synonyms": [
+                                    "Failed Authentications"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
                                 "value": "Last 3 Errors by Hostname",
                                 "synonyms": [
                                     "Last 3 Errors by Hostname"
@@ -473,24 +555,6 @@
                         },
                         {
                             "name": {
-                                "value": "US2-SuccessRate",
-                                "synonyms": [
-                                    "us2 success rate",
-                                    "us2"
-                                ]
-                            }
-                        },
-                        {
-                            "name": {
-                                "value": "Syd-SuccessRate",
-                                "synonyms": [
-                                    "syd success rate",
-                                    "syd"
-                                ]
-                            }
-                        },
-                        {
-                            "name": {
                                 "value": "Prod-SuccessRate",
                                 "synonyms": [
                                     "prod success rate",
@@ -505,9 +569,9 @@
                     "values": [
                         {
                             "name": {
-                                "value": "MongoDB Atlas - Overview",
+                                "value": "Search Lag Playbook",
                                 "synonyms": [
-                                    "MongoDB Atlas  Overview"
+                                    "Search Lag Playbook"
                                 ]
                             }
                         },
@@ -535,6 +599,35 @@
                                 "synonyms": [
                                     "End to End",
                                     "E2E"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "commandname",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "Jenkins",
+                                "synonyms": [
+                                    "Jenkins"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Jira",
+                                "synonyms": [
+                                    "Jira"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "SumoLogic",
+                                "synonyms": [
+                                    "SumoLogic"
                                 ]
                             }
                         }
